@@ -1,0 +1,102 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default-deny catch-all to prevent unauthorized access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidUserProfile(data) {
+      return data.id is string &&
+             data.id == request.auth.uid &&
+             data.email is string &&
+             data.email.size() <= 256;
+    }
+
+    function isValidClaim(data) {
+      return data.id is string &&
+             data.userId == request.auth.uid &&
+             data.listingId is string &&
+             data.title is string &&
+             data.title.size() <= 256 &&
+             data.token is string;
+    }
+
+    function isValidListing(data) {
+      return data.id is string &&
+             data.userId == request.auth.uid &&
+             data.sourceName is string &&
+             data.sourceName.size() <= 256 &&
+             data.title is string &&
+             data.title.size() <= 256 &&
+             data.portions is number &&
+             data.portions > 0;
+    }
+
+    function isValidIntake(data) {
+      return data.id is string &&
+             data.userId == request.auth.uid &&
+             data.tokenCode is string &&
+             data.title is string &&
+             data.title.size() <= 256;
+    }
+
+    // User profile document permissions
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUserProfile(incoming());
+      allow update: if isOwner(userId) && isValidUserProfile(incoming()) && incoming().id == existing().id;
+      allow delete: if false;
+
+      // User's ₹1 Food Claims
+      match /claims/{claimId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(claimId) && isValidClaim(incoming());
+        allow update: if isOwner(userId) && isValidClaim(incoming()) && incoming().id == existing().id;
+        allow delete: if false;
+      }
+
+      // User's Surplus Listings
+      match /listings/{listingId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(listingId) && isValidListing(incoming());
+        allow update: if isOwner(userId) && isValidListing(incoming()) && incoming().id == existing().id;
+        allow delete: if false;
+      }
+
+      // User's Verified QR Intakes
+      match /intakes/{intakeId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(intakeId) && isValidIntake(incoming());
+        allow update: if isOwner(userId) && isValidIntake(incoming()) && incoming().id == existing().id;
+        allow delete: if false;
+      }
+    }
+
+    // Connection testing doc
+    match /test/{docId} {
+      allow read: if true;
+    }
+  }
+}

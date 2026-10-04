@@ -1,0 +1,8 @@
+{
+  "name": "FOOD FARMER",
+  "description": "Unified platform for limiting food wastage, ₹1 surplus food rescue to NGOs, near-expiry FMCG liquidation, Zero Fridge cold-storage exchange, AI logistics routing, operational inefficiency detection, and ESG sustainability analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

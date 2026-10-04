@@ -1,0 +1,187 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile information authenticated via Google sign-in",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Firebase Auth user ID"
+        },
+        "email": {
+          "type": "string",
+          "description": "Google account email address"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Google account display name"
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "Google account profile image URL"
+        },
+        "role": {
+          "type": "string",
+          "description": "Assigned platform role",
+          "enum": ["volunteer", "food_bank", "mart_operator", "donor", "admin"]
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Account registration timestamp"
+        },
+        "lastLoginAt": {
+          "type": "string",
+          "description": "Last sign-in timestamp"
+        }
+      },
+      "required": ["id", "email"]
+    },
+    "UserClaim": {
+      "title": "UserClaim",
+      "description": "Food batch claimed for ₹1 nominal fee by the user",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Claim record ID"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner user ID"
+        },
+        "listingId": {
+          "type": "string",
+          "description": "Food listing ID"
+        },
+        "title": {
+          "type": "string",
+          "description": "Food batch title"
+        },
+        "sourceName": {
+          "type": "string",
+          "description": "Originating banquet or kitchen"
+        },
+        "portionsClaimed": {
+          "type": "number",
+          "description": "Number of meal portions claimed"
+        },
+        "token": {
+          "type": "string",
+          "description": "Digital handover gate token"
+        },
+        "claimedAt": {
+          "type": "string",
+          "description": "Claim timestamp"
+        },
+        "status": {
+          "type": "string",
+          "description": "Claim status"
+        }
+      },
+      "required": ["id", "userId", "listingId", "title", "token"]
+    },
+    "UserListing": {
+      "title": "UserListing",
+      "description": "Surplus food listing published by user",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Listing ID"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner user ID"
+        },
+        "sourceName": {
+          "type": "string",
+          "description": "Kitchen or banquet name"
+        },
+        "title": {
+          "type": "string",
+          "description": "Dish title"
+        },
+        "portions": {
+          "type": "number",
+          "description": "Number of portions"
+        },
+        "location": {
+          "type": "string",
+          "description": "Pickup location"
+        },
+        "contactPerson": {
+          "type": "string",
+          "description": "Contact person name"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Phone number"
+        },
+        "isVegetarian": {
+          "type": "boolean",
+          "description": "Vegetarian flag"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp"
+        }
+      },
+      "required": ["id", "userId", "sourceName", "title", "portions"]
+    },
+    "UserIntake": {
+      "title": "UserIntake",
+      "description": "QR scanned intake verified and saved by the user",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Intake ID"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner user ID"
+        },
+        "tokenCode": {
+          "type": "string",
+          "description": "Token code"
+        },
+        "title": {
+          "type": "string",
+          "description": "Intake item title"
+        },
+        "manifestId": {
+          "type": "string",
+          "description": "Manifest ID"
+        },
+        "status": {
+          "type": "string",
+          "description": "Verification status"
+        },
+        "verifiedAt": {
+          "type": "string",
+          "description": "Verification timestamp"
+        }
+      },
+      "required": ["id", "userId", "tokenCode", "title"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile records accessible by the account owner"
+    },
+    "/users/{userId}/claims/{claimId}": {
+      "schema": "UserClaim",
+      "description": "₹1 food claims made by the authenticated user"
+    },
+    "/users/{userId}/listings/{listingId}": {
+      "schema": "UserListing",
+      "description": "Surplus food listings published by the authenticated user"
+    },
+    "/users/{userId}/intakes/{intakeId}": {
+      "schema": "UserIntake",
+      "description": "QR intakes verified by the authenticated user"
+    }
+  }
+}
